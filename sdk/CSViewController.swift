@@ -5,20 +5,20 @@ import OpenGLES
 
 protocol CSStereoRendererDelegate
 {
-    func setupRendererWithView(view:GLKView)
-    func shutdownRendererWithView(view:GLKView)
+    func setupRendererWithView(_ view:GLKView)
+    func shutdownRendererWithView(_ view:GLKView)
     
-    func rendererDidChangeSize(size:CGSize)
+    func rendererDidChangeSize(_ size:CGSize)
     
-    func prepareNewFrameWithHeadViewMatrix(headViewMatrix:GLKMatrix4)
-    func drawEyeWithEye(eye:EyeMatrix)
-    func finishFrameWithViewportRect(viewport:CGRect)
+    func prepareNewFrameWithHeadViewMatrix(_ headViewMatrix:GLKMatrix4)
+    func drawEyeWithEye(_ eye:EyeMatrix)
+    func finishFrameWithViewportRect(_ viewport:CGRect)
 }
 
 class EyeMatrix
 {
-    var eye:Eye = Eye(type: EyeType.Monocular)
-    var eyeType:EyeType = EyeType.Monocular
+    var eye:Eye = Eye(type: EyeType.monocular)
+    var eyeType:EyeType = EyeType.monocular
     
     init()
     {
@@ -37,7 +37,7 @@ class EyeMatrix
         return eye.eyeView
     }
     
-    func perspectiveMatrixWithZNear(zNear:Float, zFar:Float) -> GLKMatrix4
+    func perspectiveMatrixWithZNear(_ zNear:Float, zFar:Float) -> GLKMatrix4
     {
         return eye.calculatePerspective(zNear,zFar)
     }
@@ -52,9 +52,9 @@ class CSViewController : GLKViewController
     var headTracker:HeadTracker = HeadTracker()
     var headTransform:HeadTransform = HeadTransform()
     
-    var monocularEye:Eye = Eye(type: EyeType.Monocular)
-    var leftEye:Eye = Eye(type: EyeType.Left)
-    var rightEye:Eye = Eye(type: EyeType.Right)
+    var monocularEye:Eye = Eye(type: EyeType.monocular)
+    var leftEye:Eye = Eye(type: EyeType.left)
+    var rightEye:Eye = Eye(type: EyeType.right)
     
     var leftEyeMatrix: EyeMatrix = EyeMatrix()
 
@@ -73,13 +73,13 @@ class CSViewController : GLKViewController
     
     var projectionChanged:Bool = true
         
-    var headMountedDisplay:HeadMountedDisplay = HeadMountedDisplay(screen: UIScreen.mainScreen())
+    var headMountedDisplay:HeadMountedDisplay = HeadMountedDisplay(screen: UIScreen.main)
     
     var glLock:NSRecursiveLock = NSRecursiveLock()
     
     var distortionRendererReady:Bool = false
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?)
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
     {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
@@ -95,16 +95,16 @@ class CSViewController : GLKViewController
     
     func setup()
     {
-        UIApplication.sharedApplication().idleTimerDisabled = true
+        UIApplication.shared.isIdleTimerDisabled = true
         
-        headTracker.startTracking(UIApplication.sharedApplication().statusBarOrientation)
+        headTracker.startTracking(UIApplication.shared.statusBarOrientation)
     }
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        self.glContext = EAGLContext(API: .OpenGLES2)
+        self.glContext = EAGLContext(api: .openGLES2)
         
         if self.glContext == nil
         {
@@ -113,16 +113,16 @@ class CSViewController : GLKViewController
         
         let view = self.view as! GLKView
         view.context = self.glContext!
-        view.drawableDepthFormat = .Format24
+        view.drawableDepthFormat = .format24
         
         rendererDelegate?.setupRendererWithView(view)
         
         GLCheckForError()
     }
     
-    override func glkView(view: GLKView, drawInRect rect: CGRect)
+    override func glkView(_ view: GLKView, drawIn rect: CGRect)
     {
-        if self.paused || !headTracker.isReady()
+        if self.isPaused || !headTracker.isReady()
         {
             return
         }
@@ -134,7 +134,7 @@ class CSViewController : GLKViewController
         
         GLCheckForError()
         
-        let lockAcquired = glLock.tryLock()
+        let lockAcquired = glLock.try()
         
         if !lockAcquired
         {
@@ -165,7 +165,7 @@ class CSViewController : GLKViewController
     
     func update()
     {
-        if self.paused || !headTracker.isReady()
+        if self.isPaused || !headTracker.isReady()
         {
             return
         }
@@ -173,7 +173,7 @@ class CSViewController : GLKViewController
         self.calculateFrameParametersWithHeadTransform(headTransform, leftEye, rightEye, monocularEye)
     }
   
-    func drawFrameWithHeadTransform(headTransform:HeadTransform,
+    func drawFrameWithHeadTransform(_ headTransform:HeadTransform,
                                     _ leftEye:Eye, _ rightEye:Eye)
     {        
         rendererDelegate!.prepareNewFrameWithHeadViewMatrix(headTransform.headView)
@@ -196,7 +196,7 @@ class CSViewController : GLKViewController
         self.rendererDelegate!.drawEyeWithEye(rightEyeMatrix)
     }
         
-    func calculateFrameParametersWithHeadTransform(headTransform:HeadTransform,
+    func calculateFrameParametersWithHeadTransform(_ headTransform:HeadTransform,
                                                    _ leftEye:Eye, _ rightEye:Eye,
                                                    _ monocularEye:Eye)
     {
@@ -245,7 +245,7 @@ class CSViewController : GLKViewController
         }
     }
     
-    func finishFrameWithViewPort(viewport:Viewport)
+    func finishFrameWithViewPort(_ viewport:Viewport)
     {
         viewport.setGLViewport()
         viewport.setGLScissor()
@@ -319,7 +319,7 @@ class CSViewController : GLKViewController
         return headMountedDisplay.cardboardParams.screenToLensDistance
     }
 
-    func getFrameParameters(layer: Float, zNear: Float, zFar: Float)
+    func getFrameParameters(_ layer: Float, zNear: Float, zFar: Float)
     {
     }
     

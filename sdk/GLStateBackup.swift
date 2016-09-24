@@ -22,7 +22,7 @@ class GLStateBackup
     
     var vertexAttributes:[VertexAttributeState] = [VertexAttributeState]()
     
-    func addTrackedVertexAttribute(id:GLuint)
+    func addTrackedVertexAttribute(_ id:GLuint)
     {
         vertexAttributes.append(VertexAttributeState(id: id))
     }

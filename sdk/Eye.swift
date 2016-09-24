@@ -3,14 +3,14 @@ import GLKit
 
 enum EyeType
 {
-    case Monocular
-    case Left
-    case Right
+    case monocular
+    case left
+    case right
 }
 
 class Eye
 {
-    var eyeType: EyeType = EyeType.Monocular
+    var eyeType: EyeType = EyeType.monocular
     var eyeView: GLKMatrix4 = GLKMatrix4Identity
     
     var viewport:Viewport = Viewport()
@@ -28,7 +28,7 @@ class Eye
         eyeType = type
     }
     
-    func calculatePerspective(near:Float, _ far:Float) -> GLKMatrix4
+    func calculatePerspective(_ near:Float, _ far:Float) -> GLKMatrix4
     {
         if !projectionChanged && lastZNear == near && lastZFar == far
         {

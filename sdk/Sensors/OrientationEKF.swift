@@ -115,7 +115,7 @@ class OrientationEKF
         return heading
     }
     
-    func setHeadingDegrees(heading:Double)
+    func setHeadingDegrees(_ heading:Double)
     {
         let currentHeading = getHeadingDegrees()
         
@@ -134,7 +134,7 @@ class OrientationEKF
         return glMatrixFromSo3(so3SensorFromWorld)
     }
     
-    func getPredictedGLMatrix(secondsAfterLastGyroEvent:Double) -> GLKMatrix4
+    func getPredictedGLMatrix(_ secondsAfterLastGyroEvent:Double) -> GLKMatrix4
     {
         let dT = secondsAfterLastGyroEvent
 
@@ -151,9 +151,9 @@ class OrientationEKF
         return glMatrixFromSo3(so3PredictedState)
     }
     
-    func processGyro(gyro:GLKVector3, _ sensorTimeStamp:Double)
+    func processGyro(_ gyro:GLKVector3, _ sensorTimeStamp:Double)
     {
-        let lockAcquired = processLock.tryLock()
+        let lockAcquired = processLock.try()
         
         if !lockAcquired
         {
@@ -194,9 +194,9 @@ class OrientationEKF
 
     }
     
-    func processAcceleration(acc:GLKVector3, _ sensorTimestamp:Double)
+    func processAcceleration(_ acc:GLKVector3, _ sensorTimestamp:Double)
     {
-        let lockAcquired = processLock.tryLock()
+        let lockAcquired = processLock.try()
         
         if !lockAcquired
         {
@@ -213,7 +213,7 @@ class OrientationEKF
             
             let eps = 1.0E-7
             
-            for var dof = 0; dof < 3; dof++
+            for dof in 0 ..< 3
             {
                 let delta = Vector3d()
                 delta.zero()
@@ -268,7 +268,7 @@ class OrientationEKF
 
     }
     
-    func filterGyroTimestep(timestep:Double)
+    func filterGyroTimestep(_ timestep:Double)
     {
         let kFilterCoeff = 0.95
         
@@ -281,7 +281,7 @@ class OrientationEKF
         else
         {
             filteredGyroTimestep = kFilterCoeff * filteredGyroTimestep + (1.0-kFilterCoeff) * timestep
-            ++numGyroTimestepSamples
+            numGyroTimestepSamples += 1
             gyroFilterValid = (numGyroTimestepSamples > 10)
         }
     }
@@ -298,7 +298,7 @@ class OrientationEKF
         so3LastMotion.identity()
     }
     
-    func updateAccelerationCovariance(currentAccelNorm:Double)
+    func updateAccelerationCovariance(_ currentAccelNorm:Double)
     {
         let currentAccelNormChange:Double = fabs(currentAccelNorm - previousAccelNorm)
         previousAccelNorm = currentAccelNorm
@@ -317,7 +317,7 @@ class OrientationEKF
         mRAcceleration.setDiagonal(accelNoiseSigma * accelNoiseSigma)
     }
     
-    func accelerationObservationFunctionForNumericalJacobian(so3SensorFromWorldPred:Matrix3x3d, inout result:Vector3d)
+    func accelerationObservationFunctionForNumericalJacobian(_ so3SensorFromWorldPred:Matrix3x3d, result:inout Vector3d)
     {
         Matrix3x3d.mult(so3SensorFromWorldPred, vDown, result:&vH)
         
@@ -328,7 +328,7 @@ class OrientationEKF
         muFromSO3(temp, result:&result)
     }
     
-    func glMatrixFromSo3(so3:Matrix3x3d) -> GLKMatrix4
+    func glMatrixFromSo3(_ so3:Matrix3x3d) -> GLKMatrix4
     {
         // Surely there's a better way to do this...
         

@@ -27,19 +27,19 @@ class Vector3d
         set(0.0, 0.0, 0.0)
     }
     
-    func set(v:Vector3d)
+    func set(_ v:Vector3d)
     {
         set(v.x, v.y, v.z)
     }
     
-    func set(x:Double, _ y:Double, _ z:Double)
+    func set(_ x:Double, _ y:Double, _ z:Double)
     {
         self.x = x
         self.y = y
         self.z = z
     }
     
-    func setComponent(i:Int, value:Double)
+    func setComponent(_ i:Int, value:Double)
     {
         if i == 0
         {
@@ -72,14 +72,14 @@ class Vector3d
         return sqrt(x * x + y * y + z * z)
     }
     
-    func scale(s:Double)
+    func scale(_ s:Double)
     {
         x *= s
         y *= s
         z *= s
     }
 
-    static func largestAbsComponent(v:Vector3d) -> Int
+    static func largestAbsComponent(_ v:Vector3d) -> Int
     {
         let xAbs = fabs(v.x)
         let yAbs = fabs(v.y)
@@ -103,17 +103,17 @@ class Vector3d
         return 2
     }
     
-    static func cross(a:Vector3d, _ b:Vector3d, inout result:Vector3d)
+    static func cross(_ a:Vector3d, _ b:Vector3d, result:inout Vector3d)
     {
         result.set(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
     }
     
-    static func dot(a:Vector3d, _ b:Vector3d) -> Double
+    static func dot(_ a:Vector3d, _ b:Vector3d) -> Double
     {
         return (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
     }
     
-    static func ortho(v:Vector3d, inout result:Vector3d)
+    static func ortho(_ v:Vector3d, result:inout Vector3d)
     {
         var k:Int = largestAbsComponent(v) - 1
         
@@ -130,7 +130,7 @@ class Vector3d
         result.normalize()
     }
     
-    static func sub(a:Vector3d, _ b:Vector3d, inout result:Vector3d)
+    static func sub(_ a:Vector3d, _ b:Vector3d, result:inout Vector3d)
     {
         result.set(a.x - b.x, a.y - b.y, a.z - b.z)
     }

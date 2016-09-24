@@ -26,7 +26,7 @@ class DistortionRenderer
     var glStateBackup:GLStateBackup = GLStateBackup()
     var glStateBackupAberration:GLStateBackup = GLStateBackup()
     
-    var headMountedDisplay:HeadMountedDisplay = HeadMountedDisplay(screen: UIScreen.mainScreen())
+    var headMountedDisplay:HeadMountedDisplay = HeadMountedDisplay(screen: UIScreen.main)
     
     var leftEyeViewport:EyeViewport = EyeViewport()
     var rightEyeViewport:EyeViewport = EyeViewport()
@@ -45,7 +45,7 @@ class DistortionRenderer
     var programHolder:ProgramHolder?
     var programHolderAberration:ProgramHolder?
     
-    func fovDidChange(hmd:HeadMountedDisplay, _ leftFov:FieldOfView, _ rightFov:FieldOfView, _ eyeToScreenDistance:Float)
+    func fovDidChange(_ hmd:HeadMountedDisplay, _ leftFov:FieldOfView, _ rightFov:FieldOfView, _ eyeToScreenDistance:Float)
     {
         if drawingFrame
         {
@@ -66,7 +66,7 @@ class DistortionRenderer
         viewportsChanged = true
     }
     
-    func initEyeViewport(fov:FieldOfView, _ xOffset:Float) -> EyeViewport
+    func initEyeViewport(_ fov:FieldOfView, _ xOffset:Float) -> EyeViewport
     {
         let left = tanf(GLKMathDegreesToRadians(fov.left))
         let right = tanf(GLKMathDegreesToRadians(fov.right))
@@ -92,7 +92,7 @@ class DistortionRenderer
         drawingFrame = false
     }
     
-    func undistortTexture(textureID:GLuint)
+    func undistortTexture(_ textureID:GLuint)
     {
         if restoreGLStateEnabled
         {
@@ -156,7 +156,7 @@ class DistortionRenderer
         GLCheckForError()
     }
     
-    func setTextureFormat(textureFormat:GLenum, textureType:GLenum)
+    func setTextureFormat(_ textureFormat:GLenum, textureType:GLenum)
     
     {
         if drawingFrame
@@ -185,7 +185,7 @@ class DistortionRenderer
         glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebufferID)
     }
     
-    func updateViewports(inout leftView:Viewport, inout _ rightView:Viewport)
+    func updateViewports(_ leftView:inout Viewport, _ rightView:inout Viewport)
     {
         let newLeftX:Int = Int(round(Float(leftEyeViewport.x) * xPxPerTanAngle * resolutionScale))
         let newLeftY:Int = Int(round(Float(leftEyeViewport.y) * yPxPerTanAngle * resolutionScale))
@@ -204,7 +204,7 @@ class DistortionRenderer
         viewportsChanged = false
     }
     
-    func renderDistortionMesh(mesh:DistortionMesh, textureID:GLint)
+    func renderDistortionMesh(_ mesh:DistortionMesh, textureID:GLint)
     {
         var holder:ProgramHolder
         
@@ -218,20 +218,28 @@ class DistortionRenderer
         }
         
         glBindBuffer(GLenum(GL_ARRAY_BUFFER), GLuint(mesh.arrayBufferID))
-        glVertexAttribPointer(GLuint(holder.positionLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * sizeof(Float)), BUFFER_OFFSET(0))
+        withUnsafePointer(to: &holder.positionLocation, {
+            glVertexAttribPointer(GLuint(holder.positionLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * MemoryLayout<Float>.size), UnsafeRawPointer($0))
+        })
         glEnableVertexAttribArray(GLuint(holder.positionLocation))
-        
-        glVertexAttribPointer(GLuint(holder.vignetteLocation), 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * sizeof(Float)), BUFFER_OFFSET(2*sizeof(Float)))
+        withUnsafePointer(to: &holder.vignetteLocation, {
+            glVertexAttribPointer(GLuint(holder.vignetteLocation), 1, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * MemoryLayout<Float>.size), UnsafeRawPointer($0).advanced(by: 2*MemoryLayout<Float>.size))
+        })
         glEnableVertexAttribArray(GLuint(holder.vignetteLocation))
-        
-        glVertexAttribPointer(GLuint(holder.blueTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * sizeof(Float)), BUFFER_OFFSET(7*sizeof(Float)))
+        withUnsafePointer(to: &holder.blueTextureCoordLocation, {
+            glVertexAttribPointer(GLuint(holder.blueTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * MemoryLayout<Float>.size), UnsafeRawPointer($0).advanced(by: 7*MemoryLayout<Float>.size))
+        })
         glEnableVertexAttribArray(GLuint(holder.blueTextureCoordLocation))
         
         if chromaticAberrationCorrectionEnabled
         {
-            glVertexAttribPointer(GLuint(holder.redTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * sizeof(Float)), BUFFER_OFFSET(3*sizeof(Float)))
+            withUnsafePointer(to: &holder.redTextureCoordLocation, {
+                glVertexAttribPointer(GLuint(holder.redTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * MemoryLayout<Float>.size), UnsafeRawPointer($0).advanced(by: 3*MemoryLayout<Float>.size))
+            })
             glEnableVertexAttribArray(GLuint(holder.redTextureCoordLocation))
-            glVertexAttribPointer(GLuint(holder.greenTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * sizeof(Float)), BUFFER_OFFSET(5*sizeof(Float)))
+            withUnsafePointer(to: &holder.greenTextureCoordLocation, {
+                glVertexAttribPointer(GLuint(holder.greenTextureCoordLocation), 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(9 * MemoryLayout<Float>.size), UnsafeRawPointer($0).advanced(by: 5*MemoryLayout<Float>.size))
+            })
             glEnableVertexAttribArray(GLuint(holder.greenTextureCoordLocation))
         }
         
@@ -243,13 +251,15 @@ class DistortionRenderer
         glUniform1f(holder.uTextureCoordScaleLocation, resolutionScale)
         
         glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), GLuint(mesh.elementBufferID))
-        glDrawElements(GLenum(GL_TRIANGLE_STRIP), GLsizei(mesh.indices), GLenum(GL_UNSIGNED_SHORT), BUFFER_OFFSET(0))
+        withUnsafePointer(to: &mesh.indices, {
+            glDrawElements(GLenum(GL_TRIANGLE_STRIP), GLsizei(mesh.indices), GLenum(GL_UNSIGNED_SHORT), UnsafeRawPointer($0))
+        })
     
         GLCheckForError()
     }
     
     
-    func computeDistortionScale( distortion:Distortion, screenWidthM: Float, ipd:Float) -> Float
+    func computeDistortionScale( _ distortion:Distortion, screenWidthM: Float, ipd:Float) -> Float
     {
         return distortion.distortionFactor((screenWidthM / 2.0 - ipd / 2.0) / (screenWidthM / 4.0))
     }
@@ -298,7 +308,7 @@ class DistortionRenderer
         fovsChanged = false
     }
     
-    func setupRenderTextureAndRenderbuffer(width:GLint, _ height:GLint) -> GLuint
+    func setupRenderTextureAndRenderbuffer(_ width:GLint, _ height:GLint) -> GLuint
     {
         if textureID != 0
         {
@@ -343,7 +353,7 @@ class DistortionRenderer
         return framebufferID
     }
     
-    func createTexture(width:GLint, _ height:GLint, _ textureFormat:GLenum, _ textureType:GLenum) -> GLuint
+    func createTexture(_ width:GLint, _ height:GLint, _ textureFormat:GLenum, _ textureType:GLenum) -> GLuint
     {
         var textureID:GLuint = 0
         
@@ -363,7 +373,7 @@ class DistortionRenderer
         return textureID
     }
     
-    func createDistortionMesh(eyeViewport:EyeViewport, _ textureWidthTanAngle:Float, _ textureHeightTanAngle:Float,
+    func createDistortionMesh(_ eyeViewport:EyeViewport, _ textureWidthTanAngle:Float, _ textureHeightTanAngle:Float,
                               _ xEyeOffsetTanAngleScreen:Float, _ yEyeOffsetTanAngleScreen:Float) -> DistortionMesh
     {
         let hmdDistortion = headMountedDisplay.cardboardParams.distortion
@@ -381,7 +391,7 @@ class DistortionRenderer
         return distortionMesh
     }
     
-    func createProgramHolder(aberrationCorrected:Bool) -> ProgramHolder
+    func createProgramHolder(_ aberrationCorrected:Bool) -> ProgramHolder
     {
         let vertexShader = "\n" +
             "attribute vec2 aPosition;\n" +
@@ -527,7 +537,7 @@ class DistortionRenderer
     }
     
     
-    func createProgram(vertexShaderSource:String, _ fragmentShaderSource:String) -> GLuint
+    func createProgram(_ vertexShaderSource:String, _ fragmentShaderSource:String) -> GLuint
     {
         var vertexHandle:GLuint = 0
         GLCompileFromString(&vertexHandle, type: GLenum(GL_VERTEX_SHADER), source: vertexShaderSource)
@@ -562,7 +572,7 @@ class DistortionRenderer
             {
                 if logLength > 0
                 {
-                    var log: [GLchar] = [GLchar](count: Int(logLength), repeatedValue: 0)
+                    var log: [GLchar] = [GLchar](repeating: 0, count: Int(logLength))
                     
                     glGetProgramInfoLog(program, logLength, &logLength, &log)
                    
@@ -593,7 +603,7 @@ class DistortionRenderer
              _ viewportWidthTexture:Float, _ viewportHeightTexture:Float,
              _ vignetteEnabled:Bool)
         {
-            var vertexData:[GLfloat] = [GLfloat](count: 14400, repeatedValue: 0.0)
+            var vertexData:[GLfloat] = [GLfloat](repeating: 0.0, count: 14400)
             
             var vertexOffset:Int = 0
             
@@ -602,9 +612,9 @@ class DistortionRenderer
             
             let vignetteSizeTanAngle:Float = 0.05
             
-            for (var row = 0; row < rows; row++)
+            for row in 0 ..< rows
             {
-                for (var col = 0; col < cols; col++)
+                for col in 0 ..< cols
                 {
                     let uTextureBlue:Float = Float(col) / 39.0 * (viewportWidthTexture / textureWidth) + viewportXTexture / textureWidth
                     let vTextureBlue:Float = Float(row) / 39.0 * (viewportHeightTexture / textureHeight) + viewportYTexture / textureHeight
@@ -661,33 +671,35 @@ class DistortionRenderer
             }
             
             indices = 3158
-            var indexData = [GLshort](count:indices, repeatedValue:0)
+            var indexData = [GLshort](repeating: 0, count: indices)
             
             var indexOffset:Int = 0
             vertexOffset = 0
             
-            for var row = 0; row < rows-1; row++
+            for row in 0 ..< rows-1
             {
                 if row > 0
                 {
                     indexData[indexOffset] = indexData[(indexOffset - 1)]
-                    indexOffset++
+                    indexOffset += 1
                 }
-                for var col = 0; col < cols; col++
+                for col in 0 ..< cols
                 {
                     if col > 0
                     {
                         if row % 2 == 0
                         {
-                            vertexOffset++
+                            vertexOffset += 1
                         }
                         else
                         {
-                            vertexOffset--
+                            vertexOffset -= 1
                         }
                     }
-                    indexData[(indexOffset++)] = GLshort(vertexOffset)
-                    indexData[(indexOffset++)] = GLshort(vertexOffset + 40)
+                    indexData[indexOffset] = GLshort(vertexOffset)
+                    indexOffset += 1
+                    indexData[indexOffset] = GLshort(vertexOffset + 40)
+                    indexOffset += 1
                 }
                 vertexOffset += 40
             }
@@ -698,10 +710,10 @@ class DistortionRenderer
             elementBufferID = Int(bufferIDs[1])
             
             glBindBuffer(GLenum(GL_ARRAY_BUFFER), GLuint(arrayBufferID))
-            glBufferData(GLenum(GL_ARRAY_BUFFER), sizeof(GLfloat) * vertexData.count, vertexData, GLbitfield(GL_STATIC_DRAW))
+            glBufferData(GLenum(GL_ARRAY_BUFFER), MemoryLayout<GLfloat>.size * vertexData.count, vertexData, GLbitfield(GL_STATIC_DRAW))
             
             glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), GLuint(elementBufferID))
-            glBufferData(GLenum(GL_ELEMENT_ARRAY_BUFFER), sizeof(GLshort) * indexData.count, indexData, GLbitfield(GL_STATIC_DRAW))
+            glBufferData(GLenum(GL_ELEMENT_ARRAY_BUFFER), MemoryLayout<GLshort>.size * indexData.count, indexData, GLbitfield(GL_STATIC_DRAW))
             
             glBindBuffer(GLenum(GL_ARRAY_BUFFER), 0)
             glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), 0)

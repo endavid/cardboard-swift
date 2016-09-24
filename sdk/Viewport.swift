@@ -11,7 +11,7 @@ class Viewport
     var width: Int = 0
     var height: Int = 0
     
-    func setViewport(x: Int,_ y: Int,_ width: Int,_ height: Int)
+    func setViewport(_ x: Int,_ y: Int,_ width: Int,_ height: Int)
     {
         self.x = x
         self.y = y
@@ -32,6 +32,6 @@ class Viewport
     
     func toCGRect() -> CGRect
     {
-        return CGRectMake(CGFloat(x), CGFloat(y), CGFloat(width) ,CGFloat(height))
+        return CGRect(x: CGFloat(x), y: CGFloat(y), width: CGFloat(width) ,height: CGFloat(height))
     }
 }

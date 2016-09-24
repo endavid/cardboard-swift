@@ -12,21 +12,21 @@ class Distortion
     
     init(distortion:Distortion)
     {
-        for (index, newCoefficient) in distortion.coefficients.enumerate()
+        for (index, newCoefficient) in distortion.coefficients.enumerated()
         {
             coefficients[index] = newCoefficient
         }
     }
     
-    func setCoefficients(coefficient:Float)
+    func setCoefficients(_ coefficient:Float)
     {
-        for (index, _) in coefficients.enumerate()
+        for (index, _) in coefficients.enumerated()
         {
             coefficients[index] = coefficient
         }
     }
     
-    func distortionFactor(radius:Float) -> Float
+    func distortionFactor(_ radius:Float) -> Float
     {
         var result:Float = 1.0
         var rFactor: Float = 1.0
@@ -42,12 +42,12 @@ class Distortion
         return result
     }
     
-    func distort(radius:Float) -> Float
+    func distort(_ radius:Float) -> Float
     {
         return radius * distortionFactor(radius)
     }
     
-    func distortInverse(radius:Float) -> Float
+    func distortInverse(_ radius:Float) -> Float
     {
         var r:Float = radius * 0.9
         

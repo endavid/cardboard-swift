@@ -3,7 +3,7 @@ import Foundation
 import GLKit
 import CoreMotion
 
-public class HeadTracker
+open class HeadTracker
 {
     let motionManager = CMMotionManager()
     
@@ -13,7 +13,7 @@ public class HeadTracker
     var correctedInertialReferenceFrameFromWorld:GLKMatrix4 = GLKMatrix4Identity
     var displayFromDevice:GLKMatrix4 = GLKMatrix4Identity
     
-    var trackingType:TrackingType = TrackingType.CoreMotion
+    var trackingType:TrackingType = TrackingType.coreMotion
     var tracker:OrientationEKF = OrientationEKF()
     
     var headingCorrectionComputed:Bool = false
@@ -26,13 +26,13 @@ public class HeadTracker
     var sampleCount:UInt = 0
     var initialSkipSamples:UInt = 10
     
-    var lastGyroEventTimestamp:NSTimeInterval = NSTimeInterval(0.0)
+    var lastGyroEventTimestamp:TimeInterval = TimeInterval(0.0)
     
     enum TrackingType
     {
-        case EKF
-        case CoreMotion
-        case CoreMotionEKF
+        case ekf
+        case coreMotion
+        case coreMotionEKF
     }
     
     init()
@@ -49,7 +49,7 @@ public class HeadTracker
     {
         var deviceFromInertialReferenceFrame = GLKMatrix4()
         
-        if trackingType == .EKF || trackingType == .CoreMotionEKF
+        if trackingType == .ekf || trackingType == .coreMotionEKF
         {
             let currentTimestamp = CACurrentMediaTime()
             
@@ -59,7 +59,7 @@ public class HeadTracker
             deviceFromInertialReferenceFrame = tracker.getPredictedGLMatrix(secondsToPredictForward)
         }
         
-        if trackingType == .CoreMotion
+        if trackingType == .coreMotion
         {
             let motion = motionManager.deviceMotion
             
@@ -132,7 +132,7 @@ public class HeadTracker
         
         var isTrackerReady:Bool = true
         
-        if trackingType == .EKF || trackingType == .CoreMotionEKF
+        if trackingType == .ekf || trackingType == .coreMotionEKF
         {
             isTrackerReady = isTrackerReady && tracker.ready()
         }
@@ -141,7 +141,7 @@ public class HeadTracker
     #endif
     }
     
-    func startTracking(orientation:UIInterfaceOrientation)
+    func startTracking(_ orientation:UIInterfaceOrientation)
     {
         
         updateDeviceOrientation(orientation)
@@ -154,17 +154,17 @@ public class HeadTracker
     
     #if !TARGET_IPHONE_SIMULATOR
         
-        if trackingType == .EKF
+        if trackingType == .ekf
         {
-            let accelerometerQueue = NSOperationQueue()
-            let gyroQueue = NSOperationQueue()
+            let accelerometerQueue = OperationQueue()
+            let gyroQueue = OperationQueue()
             
             motionManager.accelerometerUpdateInterval = 1.0/100.0
             
-            motionManager.startAccelerometerUpdatesToQueue(accelerometerQueue, withHandler:
+            motionManager.startAccelerometerUpdates(to: accelerometerQueue, withHandler:
             { ( accelerometerData, error) -> Void in
                 
-                ++self.sampleCount
+                self.sampleCount += 1
                 
                 if self.sampleCount <= self.initialSkipSamples || accelerometerData == nil
                 {
@@ -182,7 +182,7 @@ public class HeadTracker
             
             motionManager.gyroUpdateInterval = 1.0/100.0
             
-            motionManager.startGyroUpdatesToQueue(gyroQueue, withHandler:
+            motionManager.startGyroUpdates(to: gyroQueue, withHandler:
                 { ( gyroData, error) -> Void in
 
                     if self.sampleCount <= self.initialSkipSamples || gyroData == nil
@@ -201,16 +201,16 @@ public class HeadTracker
 
         }
             
-        else if trackingType == .CoreMotionEKF
+        else if trackingType == .coreMotionEKF
         {
-            let deviceMotionQueue = NSOperationQueue()
+            let deviceMotionQueue = OperationQueue()
             
             motionManager.deviceMotionUpdateInterval = 1.0/100.0
             
-            motionManager.startDeviceMotionUpdatesUsingReferenceFrame(CMAttitudeReferenceFrame.XArbitraryZVertical, toQueue: deviceMotionQueue, withHandler:
+            motionManager.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xArbitraryZVertical, to: deviceMotionQueue, withHandler:
             { (deviceMotion, error) -> Void in
                 
-                ++self.sampleCount
+                self.sampleCount += 1
                 
                 if self.sampleCount <= self.initialSkipSamples || deviceMotion == nil
                 {
@@ -234,11 +234,11 @@ public class HeadTracker
             })
         }
             
-        else if trackingType == .CoreMotion
+        else if trackingType == .coreMotion
         {
-            if motionManager.deviceMotionAvailable
+            if motionManager.isDeviceMotionAvailable
             {
-                motionManager.startDeviceMotionUpdatesUsingReferenceFrame(CMAttitudeReferenceFrame.XArbitraryZVertical);
+                motionManager.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xArbitraryZVertical);
             }
         }
 
@@ -248,25 +248,25 @@ public class HeadTracker
     
     func stopTracking()
     {
-        if trackingType == .EKF
+        if trackingType == .ekf
         {
             motionManager.stopAccelerometerUpdates()
             motionManager.stopGyroUpdates()
         }
-        else if trackingType == .CoreMotion || trackingType == .CoreMotionEKF
+        else if trackingType == .coreMotion || trackingType == .coreMotionEKF
         {
             motionManager.stopDeviceMotionUpdates()
         }
     }
     
-    func updateDeviceOrientation(orientation:UIInterfaceOrientation)
+    func updateDeviceOrientation(_ orientation:UIInterfaceOrientation)
     {
         
     }
     
     
     
-    func GetRotateEulerMatrix(inX:Float, _ inY:Float, _ inZ:Float) -> GLKMatrix4
+    func GetRotateEulerMatrix(_ inX:Float, _ inY:Float, _ inZ:Float) -> GLKMatrix4
     {
     
         var x = inX
@@ -312,7 +312,7 @@ public class HeadTracker
         return matrix;
     }
     
-    func GLMatrixFromRotationMatrix(rotationMatrix:CMRotationMatrix) -> GLKMatrix4
+    func GLMatrixFromRotationMatrix(_ rotationMatrix:CMRotationMatrix) -> GLKMatrix4
     {
         var glRotationMatrix:GLKMatrix4 = GLKMatrix4Identity;
     

@@ -7,9 +7,9 @@ extension UIScreen
     {
         let screenSize = self.bounds.size
         
-        if NSFoundationVersionNumber <= NSFoundationVersionNumber10_7_1 && UIInterfaceOrientationIsLandscape(UIApplication.sharedApplication().statusBarOrientation)
+        if NSFoundationVersionNumber <= NSFoundationVersionNumber10_7_1 && UIInterfaceOrientationIsLandscape(UIApplication.shared.statusBarOrientation)
         {
-            return CGSizeMake(screenSize.height, screenSize.width)
+            return CGSize(width: screenSize.height, height: screenSize.width)
         }
         
         return screenSize
@@ -19,7 +19,7 @@ extension UIScreen
     {
         let screenSize = self.bounds.size
         
-        return CGSizeMake(min(screenSize.width, screenSize.height), max(screenSize.width,screenSize.height))
+        return CGSize(width: min(screenSize.width, screenSize.height), height: max(screenSize.width,screenSize.height))
     }
 }
 
@@ -36,9 +36,9 @@ class ScreenParams
     
     let correctIphoneViewport:Bool = true
     
-    let isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Phone
+    let isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.phone
     
-    let isRetina:Bool = UIScreen.mainScreen().scale == 2.0
+    let isRetina:Bool = UIScreen.main.scale == 2.0
     
     
     init()
@@ -56,7 +56,7 @@ class ScreenParams
     
     init(deviceScreen:UIScreen)
     {
-        let isIphone5:Bool = isPhone && (UIScreen.mainScreen().sizeFixedToPortrait().width == 375.0)
+        let isIphone5:Bool = isPhone && (UIScreen.main.sizeFixedToPortrait().width == 375.0)
         
         screen = deviceScreen
         
@@ -109,7 +109,7 @@ class ScreenParams
         return Float(height()) * yMetersPerPixel
     }
     
-    func pixelsPerInch(deviceScreen:UIScreen) -> Float
+    func pixelsPerInch(_ deviceScreen:UIScreen) -> Float
     {
         // Default iPhone retina pixels per inch
         // todo: the other scenarios

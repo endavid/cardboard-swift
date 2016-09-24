@@ -1,7 +1,7 @@
 
 import Foundation
 
-func so3FromTwoVecN(a:Vector3d, _ b:Vector3d, inout result:Matrix3x3d)
+func so3FromTwoVecN(_ a:Vector3d, _ b:Vector3d, result:inout Matrix3x3d)
 {
     var so3FromTwoVecNN:Vector3d = Vector3d()
     
@@ -55,7 +55,7 @@ func so3FromTwoVecN(a:Vector3d, _ b:Vector3d, inout result:Matrix3x3d)
     Matrix3x3d.mult(r2, r1, result: &result)
 }
 
-func rotationPiAboutAxis(v:Vector3d, inout result:Matrix3x3d)
+func rotationPiAboutAxis(_ v:Vector3d, result:inout Matrix3x3d)
 {
     let temp = Vector3d(v)
     
@@ -67,7 +67,7 @@ func rotationPiAboutAxis(v:Vector3d, inout result:Matrix3x3d)
     rodriguesSo3Exp(temp, kA, kB, result: &result)
 }
 
-func rodriguesSo3Exp(w:Vector3d, _ kA:Double, _ kB:Double, inout result:Matrix3x3d)
+func rodriguesSo3Exp(_ w:Vector3d, _ kA:Double, _ kB:Double, result:inout Matrix3x3d)
 {
     let wx2 = w.x * w.x
     let wy2 = w.y * w.y
@@ -97,7 +97,7 @@ func rodriguesSo3Exp(w:Vector3d, _ kA:Double, _ kB:Double, inout result:Matrix3x
     
 }
 
-func so3FromMu(w:Vector3d, inout result:Matrix3x3d)
+func so3FromMu(_ w:Vector3d, result:inout Matrix3x3d)
 {
     let thetaSq:Double = Vector3d.dot(w, w)
     let theta:Double = sqrt(thetaSq)
@@ -128,7 +128,7 @@ func so3FromMu(w:Vector3d, inout result:Matrix3x3d)
     rodriguesSo3Exp(w, kA, kB, result: &result)
 }
 
-func muFromSO3(so3:Matrix3x3d, inout result:Vector3d)
+func muFromSO3(_ so3:Matrix3x3d, result:inout Vector3d)
 {
     let cosAngle = (so3.get(0, 0) + so3.get(1, 1) + so3.get(2, 2) - 1.0) * 0.5
     

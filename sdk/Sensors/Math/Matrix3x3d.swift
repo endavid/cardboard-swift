@@ -3,7 +3,7 @@ import Foundation
 
 class Matrix3x3d
 {
-    var m:[Double] = [Double](count: 9, repeatedValue: 0.0)
+    var m:[Double] = [Double](repeating: 0.0, count: 9)
     
     init()
     {
@@ -29,13 +29,13 @@ class Matrix3x3d
     
     func zero()
     {
-        for (var i = 0; i < 9; i++)
+        for i in 0 ..< 9
         {
             m[i] = 0.0
         }
     }
     
-    func get(row:Int, _ col:Int) -> Double
+    func get(_ row:Int, _ col:Int) -> Double
     {
         return m[(3 * row + col)]
     }
@@ -53,19 +53,19 @@ class Matrix3x3d
         m[8] = 1
     }
     
-    func setDiagonal(d:Double)
+    func setDiagonal(_ d:Double)
     {
         m[0] = d
         m[4] = d
         m[8] = d
     }
     
-    func set(row:Int, _ col:Int, _ value:Double)
+    func set(_ row:Int, _ col:Int, _ value:Double)
     {
         m[(3 * row + col)] = value
     }
     
-    func set(m00:Double, _ m01:Double, _ m02:Double,
+    func set(_ m00:Double, _ m01:Double, _ m02:Double,
            _ m10:Double, _ m11:Double, _ m12:Double,
            _ m20:Double, _ m21:Double, _ m22:Double)
     {
@@ -82,40 +82,40 @@ class Matrix3x3d
         m[8] = m22
     }
     
-    func minusEquals(input:Matrix3x3d)
+    func minusEquals(_ input:Matrix3x3d)
     {
-        for var i = 0; i < 9; i++
+        for i in 0 ..< 9
         {
             m[i] -= input.m[i]
         }
     }
     
-    func set(input:Matrix3x3d)
+    func set(_ input:Matrix3x3d)
     {
-        for var i = 0; i < 9; i++
+        for i in 0 ..< 9
         {
             m[i] = input.m[i]
         }
     }
     
-    func setColumn(col:Int, _ v:Vector3d)
+    func setColumn(_ col:Int, _ v:Vector3d)
     {
         m[col] = v.x
         m[col + 3] = v.y
         m[col + 6] = v.z
     }
     
-    func scale(s:Double)
+    func scale(_ s:Double)
     {
-        for var i = 0; i < 9; i++
+        for i in 0 ..< 9
         {
             m[i] *= s
         }
     }
     
-    func plusEquals(input:Matrix3x3d)
+    func plusEquals(_ input:Matrix3x3d)
     {
-        for var i = 0; i < 9; i++
+        for i in 0 ..< 9
         {
             m[i] += input.m[i]
         }
@@ -141,7 +141,7 @@ class Matrix3x3d
         m[7] = tmp
     }
     
-    func transpose(inout result:Matrix3x3d)
+    func transpose(_ result:inout Matrix3x3d)
     {
         result.m[0] = m[0]
         result.m[1] = m[3]
@@ -154,7 +154,7 @@ class Matrix3x3d
         result.m[8] = m[8]
     }
     
-    func invert(inout result:Matrix3x3d) -> Bool
+    func invert(_ result:inout Matrix3x3d) -> Bool
     {
         let d = determinant()
         
@@ -185,7 +185,7 @@ class Matrix3x3d
         return matString
     }
     
-    static func mult(a:Matrix3x3d, _ b:Matrix3x3d, inout result:Matrix3x3d)
+    static func mult(_ a:Matrix3x3d, _ b:Matrix3x3d, result:inout Matrix3x3d)
     {
         result.set(a.m[0] * b.m[0] + a.m[1] * b.m[3] + a.m[2] * b.m[6],
                    a.m[0] * b.m[1] + a.m[1] * b.m[4] + a.m[2] * b.m[7],
@@ -198,16 +198,16 @@ class Matrix3x3d
                    a.m[6] * b.m[2] + a.m[7] * b.m[5] + a.m[8] * b.m[8])
     }
     
-    static func mult(a:Matrix3x3d, _ v:Vector3d, inout result:Vector3d)
+    static func mult(_ a:Matrix3x3d, _ v:Vector3d, result:inout Vector3d)
     {
         result.set(a.m[0] * v.x + a.m[1] * v.y + a.m[2] * v.z,
                    a.m[3] * v.x + a.m[4] * v.y + a.m[5] * v.z,
                    a.m[6] * v.x + a.m[7] * v.y + a.m[8] * v.z)
     }
     
-    static func add(a:Matrix3x3d, _ b:Matrix3x3d, inout result:Matrix3x3d)
+    static func add(_ a:Matrix3x3d, _ b:Matrix3x3d, result:inout Matrix3x3d)
     {
-        for var i = 0; i < 9; i++
+        for i in 0 ..< 9
         {
             result.m[i] = a.m[i] + b.m[i]
         }
